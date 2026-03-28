@@ -1,6 +1,6 @@
 /**
- * MAD EDITZZZ - Backend Server
- * Node.js + Express
+ * MAD EDITZZZ - VERCEL SAFE SERVER
+ * No filesystem write (fixes EROFS error)
  */
 
 const express = require("express");
@@ -13,7 +13,7 @@ const fs = require("fs");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ─── Middleware ───────────────────────────────────────────────────────────────
+// ─── Middleware ─────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -21,204 +21,153 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "madeditzzz_super_secret_key_2024",
+    secret: process.env.SESSION_SECRET || "madeditzzz_secret",
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 }, // 24h
+    cookie: { secure: false }
   })
 );
 
-// ─── File Upload Config ───────────────────────────────────────────────────────
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, "public", "uploads");
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueName = `preset_${Date.now()}${path.extname(file.originalname)}`;
-    cb(null, uniqueName);
-  },
-});
-
+// ─── MULTER (MEMORY STORAGE - FIXED) ────────────────────────
 const upload = multer({
-  storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB max
-  fileFilter: (req, file, cb) => {
-    const allowed = /jpeg|jpg|png|webp/;
-    const ext = allowed.test(path.extname(file.originalname).toLowerCase());
-    const mime = allowed.test(file.mimetype);
-    if (ext && mime) cb(null, true);
-    else cb(new Error("Only image files (JPG, PNG, WEBP) are allowed"));
-  },
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }
 });
 
-// ─── Admin Credentials ────────────────────────────────────────────────────────
-// CHANGE THESE IN PRODUCTION!
-const ADMIN_USERNAME = process.env.ADMIN_USER || "admin";
-const ADMIN_PASSWORD = process.env.ADMIN_PASS || "madeditzzz123";
+// ─── ADMIN ──────────────────────────────────────────────────
+const ADMIN_USERNAME = "admin";
+const ADMIN_PASSWORD = "madeditzzz123";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-const DATA_PATH = path.join(__dirname, "data", "presets.json");
+// ─── TEMP DATA (IN MEMORY) ─────────────────────────────────
+let presetsData = require("./data/presets.json");
 
+// ─── HELPERS ───────────────────────────────────────────────
 function readPresets() {
-  try {
-    const raw = fs.readFileSync(DATA_PATH, "utf-8");
-    return JSON.parse(raw);
-  } catch {
-    return { presets: [] };
-  }
+  return presetsData;
 }
 
 function writePresets(data) {
-  fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
+  // ❌ Disabled for Vercel
+  console.log("⚠️ Data not saved (Vercel read-only)");
 }
 
+// ─── AUTH ──────────────────────────────────────────────────
 function isAuthenticated(req, res, next) {
   if (req.session && req.session.isAdmin) return next();
   return res.status(401).json({ success: false, message: "Unauthorized" });
 }
 
-// ─── Routes: Static Pages ────────────────────────────────────────────────────
+// ─── ROUTES ────────────────────────────────────────────────
+
+// Homepage
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+// Admin page
 app.get("/admin", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "admin.html"));
 });
 
-// ─── Routes: API ─────────────────────────────────────────────────────────────
-
-// GET all presets
+// GET presets
 app.get("/api/presets", (req, res) => {
   const data = readPresets();
-  // Return presets without exposing download link until needed
-  const safe = data.presets.map(({ downloadLink, ...rest }) => rest);
-  res.json({ success: true, presets: safe });
+  res.json({ success: true, presets: data.presets });
 });
 
-// GET single preset download link (after timer)
+// DOWNLOAD
 app.get("/api/presets/:id/download", (req, res) => {
   const data = readPresets();
-  const preset = data.presets.find((p) => p.id === req.params.id);
-  if (!preset) return res.status(404).json({ success: false, message: "Preset not found" });
+  const preset = data.presets.find(p => p.id === req.params.id);
 
-  // Increment download count
+  if (!preset) {
+    return res.status(404).json({ success: false });
+  }
+
   preset.downloads = (preset.downloads || 0) + 1;
-  writePresets(data);
 
-  res.json({ success: true, downloadLink: preset.downloadLink });
+  res.json({
+    success: true,
+    downloadLink: preset.driveLink || preset.downloadLink
+  });
 });
 
-// POST admin login
+// LOGIN
 app.post("/api/admin/login", (req, res) => {
   const { username, password } = req.body;
+
   if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
     req.session.isAdmin = true;
-    return res.json({ success: true, message: "Logged in successfully" });
+    return res.json({ success: true });
   }
-  res.status(401).json({ success: false, message: "Invalid credentials" });
+
+  res.status(401).json({ success: false });
 });
 
-// POST admin logout
+// LOGOUT
 app.post("/api/admin/logout", (req, res) => {
   req.session.destroy();
   res.json({ success: true });
 });
 
-// GET admin check session
+// CHECK
 app.get("/api/admin/check", (req, res) => {
-  res.json({ isAdmin: !!(req.session && req.session.isAdmin) });
+  res.json({ isAdmin: !!req.session.isAdmin });
 });
 
-// GET all presets (admin – includes download links)
+// ADMIN GET
 app.get("/api/admin/presets", isAuthenticated, (req, res) => {
   const data = readPresets();
   res.json({ success: true, presets: data.presets });
 });
 
-// POST add new preset (admin)
+// ADD PRESET (NO FILE SAVE)
 app.post("/api/admin/presets", isAuthenticated, upload.single("image"), (req, res) => {
-  const { title, category, description, downloadLink, imageUrl } = req.body;
-
-  if (!title || !downloadLink) {
-    return res.status(400).json({ success: false, message: "Title and download link are required" });
-  }
-
-  const data = readPresets();
-
-  // Use uploaded file or external URL
-  let finalImageUrl = imageUrl || "";
-  if (req.file) {
-    finalImageUrl = `/uploads/${req.file.filename}`;
-  }
-
-  if (!finalImageUrl) {
-    return res.status(400).json({ success: false, message: "Image file or URL is required" });
-  }
+  const { title, category, downloadLink, imageUrl } = req.body;
 
   const newPreset = {
     id: Date.now().toString(),
-    title: title.trim(),
-    category: category?.trim() || "General",
-    description: description?.trim() || "",
-    imageUrl: finalImageUrl,
-    downloadLink: downloadLink.trim(),
+    title,
+    category,
+    imageUrl: imageUrl || "https://via.placeholder.com/400",
+    downloadLink,
     downloads: 0,
-    createdAt: new Date().toISOString(),
+    createdAt: new Date().toISOString()
   };
 
-  data.presets.unshift(newPreset); // Add to top
-  writePresets(data);
+  presetsData.presets.unshift(newPreset);
 
-  res.json({ success: true, message: "Preset added successfully", preset: newPreset });
+  res.json({ success: true, preset: newPreset });
 });
 
-// DELETE preset (admin)
+// DELETE
 app.delete("/api/admin/presets/:id", isAuthenticated, (req, res) => {
-  const data = readPresets();
-  const idx = data.presets.findIndex((p) => p.id === req.params.id);
-  if (idx === -1) return res.status(404).json({ success: false, message: "Not found" });
+  presetsData.presets = presetsData.presets.filter(p => p.id !== req.params.id);
 
-  // Delete uploaded file if local
-  const preset = data.presets[idx];
-  if (preset.imageUrl.startsWith("/uploads/")) {
-    const filePath = path.join(__dirname, "public", preset.imageUrl);
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-  }
-
-  data.presets.splice(idx, 1);
-  writePresets(data);
-
-  res.json({ success: true, message: "Preset deleted" });
+  res.json({ success: true });
 });
 
-// PUT update preset (admin)
+// UPDATE
 app.put("/api/admin/presets/:id", isAuthenticated, (req, res) => {
-  const data = readPresets();
-  const preset = data.presets.find((p) => p.id === req.params.id);
-  if (!preset) return res.status(404).json({ success: false, message: "Not found" });
+  const preset = presetsData.presets.find(p => p.id === req.params.id);
 
-  const { title, category, description, downloadLink } = req.body;
-  if (title) preset.title = title.trim();
-  if (category) preset.category = category.trim();
-  if (description !== undefined) preset.description = description.trim();
-  if (downloadLink) preset.downloadLink = downloadLink.trim();
+  if (!preset) return res.status(404).json({ success: false });
 
-  writePresets(data);
-  res.json({ success: true, message: "Preset updated", preset });
+  const { title, category, downloadLink } = req.body;
+
+  if (title) preset.title = title;
+  if (category) preset.category = category;
+  if (downloadLink) preset.downloadLink = downloadLink;
+
+  res.json({ success: true, preset });
 });
 
-// ─── Error Handler ────────────────────────────────────────────────────────────
-app.use((err, req, res, next) => {
-  console.error(err.message);
-  res.status(500).json({ success: false, message: err.message || "Server error" });
+// FALLBACK
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// ─── Start ────────────────────────────────────────────────────────────────────
+// START
 app.listen(PORT, () => {
-  console.log(`\n🔥 MAD EDITZZZ server running at http://localhost:${PORT}`);
-  console.log(`📸 Admin panel: http://localhost:${PORT}/admin`);
-  console.log(`🔑 Admin login: ${ADMIN_USERNAME} / ${ADMIN_PASSWORD}\n`);
+  console.log("🔥 Server running on port", PORT);
 });
