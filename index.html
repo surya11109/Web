@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MAD EDITZZZ — Premium Presets</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ═══ CURSOR GLOW ═══ -->
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <!-- ═══ NOISE OVERLAY ═══ -->
+  <div class="noise-overlay"></div>
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <span class="logo-mad">MAD</span>
+        <span class="logo-edit">EDIT</span>
+        <span class="logo-zzz">ZZZ</span>
+      </a>
+      <nav class="nav-links">
+        <a href="#presets">Presets</a>
+        <a href="#about">About</a>
+        <a href="/admin" class="nav-admin">Admin</a>
+      </nav>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="mobile-nav" id="mobileNav">
+      <a href="#presets">Presets</a>
+      <a href="#about">About</a>
+      <a href="/admin">Admin</a>
+    </div>
+  </header>
+
+  <!-- ═══ HERO ═══ -->
+  <section class="hero">
+    <div class="hero-bg-grid"></div>
+    <div class="hero-content">
+      <div class="hero-badge">🔥 FREE LIGHTROOM PRESETS</div>
+      <h1 class="hero-title">
+        <span class="line1">MAKE YOUR</span>
+        <span class="line2">EDITS GO</span>
+        <span class="line3">MAD<em>.</em></span>
+      </h1>
+      <p class="hero-sub">Premium cinematic presets crafted for photographers & content creators. Download free. Edit insane.</p>
+      <a href="#presets" class="hero-cta">
+        Browse Presets
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-num" id="totalDownloads">0</span><span class="stat-label">Downloads</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><span class="stat-num" id="totalPresets">0</span><span class="stat-label">Presets</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><span class="stat-num">100%</span><span class="stat-label">Free</span></div>
+    </div>
+  </section>
+
+  <!-- ═══ FILTERS ═══ -->
+  <section class="filters-bar" id="presets">
+    <div class="filters-inner">
+      <span class="filters-label">FILTER BY:</span>
+      <div class="filter-pills" id="filterPills">
+        <button class="pill active" data-cat="all">All</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ PRESETS GRID ═══ -->
+  <section class="presets-section">
+    <div class="section-header">
+      <h2 class="section-title">PRESET VAULT</h2>
+      <p class="section-sub">Click any preset to preview — hit download and wait 30 seconds to unlock your file.</p>
+    </div>
+
+    <div class="presets-grid" id="presetsGrid">
+      <!-- Skeleton loaders -->
+      <div class="preset-skeleton"></div>
+      <div class="preset-skeleton"></div>
+      <div class="preset-skeleton"></div>
+      <div class="preset-skeleton"></div>
+      <div class="preset-skeleton"></div>
+      <div class="preset-skeleton"></div>
+    </div>
+
+    <div class="load-more-wrap">
+      <button class="btn-load-more" id="loadMoreBtn" style="display:none">Load More</button>
+    </div>
+  </section>
+
+  <!-- ═══ ABOUT ═══ -->
+  <section class="about-section" id="about">
+    <div class="about-inner">
+      <div class="about-text">
+        <div class="about-tag">ABOUT US</div>
+        <h2 class="about-title">Built by editors,<br>for editors.</h2>
+        <p>MAD EDITZZZ was born out of a obsession with cinematic color grading. Every preset here is hand-crafted through hundreds of hours of testing across different cameras, lighting conditions, and styles.</p>
+        <p>We give it all for free. Because good edits shouldn't be locked behind paywalls.</p>
+      </div>
+      <div class="about-cards">
+        <div class="about-card">
+          <div class="about-card-icon">⚡</div>
+          <h3>Instant Quality</h3>
+          <p>One-click presets that actually work. No ugly skin tones. No blown highlights.</p>
+        </div>
+        <div class="about-card">
+          <div class="about-card-icon">🎬</div>
+          <h3>Cinematic Look</h3>
+          <p>Inspired by Hollywood color grading. Works on Lightroom, Lightroom Mobile & ACR.</p>
+        </div>
+        <div class="about-card">
+          <div class="about-card-icon">🔓</div>
+          <h3>Always Free</h3>
+          <p>No emails. No subscriptions. Just wait 30 seconds and download. That's it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <span class="logo-mad">MAD</span><span class="logo-edit">EDIT</span><span class="logo-zzz">ZZZ</span>
+      </div>
+      <p class="footer-copy">© 2024 MAD EDITZZZ. All presets are free to use. Made with 🔥 for the editing community.</p>
+      <div class="footer-links">
+        <a href="/admin">Admin</a>
+        <a href="#presets">Presets</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══ DOWNLOAD MODAL ═══ -->
+  <div class="modal-overlay" id="downloadModal">
+    <div class="modal-box">
+      <button class="modal-close" id="modalClose">✕</button>
+      <div class="modal-preset-preview">
+        <img id="modalImage" src="" alt="" />
+        <div class="modal-preset-info">
+          <span class="modal-category" id="modalCategory"></span>
+          <h3 class="modal-title" id="modalTitle"></h3>
+          <p class="modal-desc" id="modalDesc"></p>
+        </div>
+      </div>
+
+      <!-- Timer state -->
+      <div class="download-state" id="stateTimer">
+        <div class="timer-ring-wrap">
+          <svg class="timer-ring" width="100" height="100">
+            <circle class="ring-bg" cx="50" cy="50" r="42" />
+            <circle class="ring-progress" id="ringProgress" cx="50" cy="50" r="42" />
+          </svg>
+          <span class="timer-num" id="timerNum">30</span>
+        </div>
+        <p class="timer-label">Preparing your download…</p>
+        <div class="timer-bar-wrap"><div class="timer-bar" id="timerBar"></div></div>
+        <button class="btn-download btn-waiting" id="btnDownload">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Wait <span id="btnCountdown">30</span>s…
+        </button>
+      </div>
+
+      <!-- Ready state -->
+      <div class="download-state hidden" id="stateReady">
+        <div class="ready-icon">✅</div>
+        <h3 class="ready-title">Your preset is ready!</h3>
+        <p class="ready-sub">Click below to open your Google Drive download link.</p>
+        <a class="btn-download btn-ready" id="btnActualDownload" href="#" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Download Now
+        </a>
+        <button class="btn-reset" id="btnReset">Download Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
